@@ -108,6 +108,12 @@ Built with a **modern tech stack** featuring JWT authentication, Socket.IO real-
 ### 🌙 Dark Mode
 ![Dark Mode](./screenshots/dark-mode.png)
 
+### 🆕 Create Account
+![Create Account](./screenshots/create-account.png)
+
+### 🔑 Forgot Password (OTP)
+![Forgot Password](./screenshots/forgot-password.png)
+
 ---
 
 ## 🛠 Tech Stack
