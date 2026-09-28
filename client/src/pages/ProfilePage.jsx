@@ -9,7 +9,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { useToast } from "../context/ToastContext.jsx";
 
 export default function ProfilePage() {
-  const { user, login } = useAuth();
+  const { user, updateUser } = useAuth();
   const { show } = useToast();
 
   const [activeTab, setActiveTab] = useState("profile");
@@ -22,7 +22,7 @@ export default function ProfilePage() {
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef(null);
 
-  // Sync form when user updates
+  // Sync form when user updates (e.g. after avatar upload)
   useEffect(() => {
     if (user) {
       setForm({
@@ -34,14 +34,14 @@ export default function ProfilePage() {
   }, [user]);
 
   // ============================================================
-  // SAVE PROFILE
+  // SAVE PROFILE — uses updateUser (partial merge)
   // ============================================================
   const saveProfile = async (e) => {
     e.preventDefault();
     setSaving(true);
     try {
       const { data } = await api.patch("/users/me", form);
-      login(localStorage.getItem("token"), data);
+      updateUser(data); // merges {name, bio, theme, avatarColor, avatarUrl} into context
       show("Profile updated ✅", "success");
     } catch (err) {
       show(err.response?.data?.error || "Update failed", "error");
@@ -51,7 +51,7 @@ export default function ProfilePage() {
   };
 
   // ============================================================
-  // UPLOAD AVATAR
+  // UPLOAD AVATAR — uses updateUser
   // ============================================================
   const uploadAvatar = async (e) => {
     const file = e.target.files[0];
@@ -68,7 +68,7 @@ export default function ProfilePage() {
       const { data } = await api.post("/users/me/avatar", fd, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      login(localStorage.getItem("token"), { ...user, ...data });
+      updateUser(data); // merges {avatarUrl, ...}
       show("Avatar updated! 📸", "success");
     } catch (err) {
       show(err.response?.data?.error || "Upload failed", "error");
@@ -90,7 +90,6 @@ export default function ProfilePage() {
       <div className="max-w-4xl mx-auto p-6">
         <h1 className="text-3xl font-bold mb-6">Profile & Settings</h1>
 
-        {/* Tabs */}
         <div className="flex gap-2 mb-6 border-b overflow-x-auto" style={{ borderColor: "var(--border)" }}>
           {tabs.map((t) => (
             <button
@@ -109,7 +108,6 @@ export default function ProfilePage() {
           ))}
         </div>
 
-        {/* PROFILE TAB */}
         {activeTab === "profile" && (
           <ProfileTab
             user={user}
@@ -123,13 +121,8 @@ export default function ProfilePage() {
           />
         )}
 
-        {/* SECURITY TAB */}
         {activeTab === "security" && <SecurityTab user={user} />}
-
-        {/* ACTIVITY TAB */}
         {activeTab === "activity" && <ActivityTab />}
-
-        {/* DANGER TAB */}
         {activeTab === "danger" && <DangerTab user={user} />}
       </div>
     </Layout>
@@ -144,7 +137,6 @@ function ProfileTab({ user, form, setForm, saveProfile, saving, fileRef, uploadA
     <div className="card p-6">
       <h2 className="text-lg font-semibold mb-6">Basic Information</h2>
 
-      {/* Avatar section */}
       <div className="flex flex-col sm:flex-row items-center gap-6 mb-6 pb-6 border-b" style={{ borderColor: "var(--border)" }}>
         <div className="relative">
           {user?.avatarUrl ? (
@@ -167,19 +159,8 @@ function ProfileTab({ user, form, setForm, saveProfile, saving, fileRef, uploadA
           <p className="text-sm mb-3" style={{ color: "var(--text-muted)" }}>
             {user?.email}
           </p>
-          <input
-            ref={fileRef}
-            type="file"
-            accept="image/*"
-            hidden
-            onChange={uploadAvatar}
-          />
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => fileRef.current?.click()}
-            disabled={uploading}
-          >
+          <input ref={fileRef} type="file" accept="image/*" hidden onChange={uploadAvatar} />
+          <Button type="button" variant="ghost" onClick={() => fileRef.current?.click()} disabled={uploading}>
             {uploading ? "Uploading..." : "📸 Change Photo"}
           </Button>
           <p className="text-xs mt-2" style={{ color: "var(--text-muted)" }}>
@@ -188,7 +169,6 @@ function ProfileTab({ user, form, setForm, saveProfile, saving, fileRef, uploadA
         </div>
       </div>
 
-      {/* Form */}
       <form onSubmit={saveProfile} className="space-y-4">
         <div>
           <label className="text-xs font-medium mb-1.5 block" style={{ color: "var(--text-secondary)" }}>
@@ -291,7 +271,6 @@ function SecurityTab({ user }) {
 
   return (
     <div className="space-y-6">
-      {/* Password */}
       <div className="card p-6">
         <h2 className="text-lg font-semibold mb-4">🔑 Change Password</h2>
         <form onSubmit={changePwd} className="space-y-4">
@@ -322,7 +301,6 @@ function SecurityTab({ user }) {
         </form>
       </div>
 
-      {/* Email */}
       <div className="card p-6">
         <h2 className="text-lg font-semibold mb-4">📧 Email Address</h2>
         <div className="flex items-center justify-between flex-wrap gap-3">
@@ -338,7 +316,6 @@ function SecurityTab({ user }) {
         </div>
       </div>
 
-      {/* Sessions */}
       <div className="card p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">💻 Active Sessions</h2>
@@ -350,7 +327,7 @@ function SecurityTab({ user }) {
         </div>
         {sessions.length === 0 ? (
           <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-            No active sessions tracked yet. (Coming soon: this list will show all devices where you're logged in.)
+            No active sessions tracked yet.
           </p>
         ) : (
           <div className="space-y-2">
@@ -369,7 +346,6 @@ function SecurityTab({ user }) {
         )}
       </div>
 
-      {/* Email Change Modal */}
       {emailModal && <EmailChangeModal onClose={() => setEmailModal(false)} user={user} />}
     </div>
   );
@@ -379,9 +355,9 @@ function SecurityTab({ user }) {
 // EMAIL CHANGE MODAL
 // ============================================================
 function EmailChangeModal({ onClose, user }) {
-  const { login } = useAuth();
+  const { updateUser } = useAuth();
   const { show } = useToast();
-  const [step, setStep] = useState("password"); // password | otp
+  const [step, setStep] = useState("password");
   const [form, setForm] = useState({ newEmail: "", password: "", otp: "" });
   const [devOtp, setDevOtp] = useState("");
   const [loading, setLoading] = useState(false);
@@ -409,7 +385,7 @@ function EmailChangeModal({ onClose, user }) {
     setLoading(true);
     try {
       const { data } = await api.post("/users/me/email/verify", { otp: form.otp });
-      login(localStorage.getItem("token"), data.user);
+      updateUser(data.user); // ✅ partial update
       show("Email changed successfully! ✅", "success");
       onClose();
     } catch (err) {
@@ -560,7 +536,7 @@ function ActivityTab() {
 function DangerTab({ user }) {
   const { logout } = useAuth();
   const { show } = useToast();
-  const [step, setStep] = useState("idle"); // idle | password | otp
+  const [step, setStep] = useState("idle");
   const [password, setPassword] = useState("");
   const [otp, setOtp] = useState("");
   const [devOtp, setDevOtp] = useState("");
@@ -606,12 +582,9 @@ function DangerTab({ user }) {
         <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 mb-4">
           <h3 className="font-semibold text-red-700 dark:text-red-300 mb-2">🗑️ Delete Account</h3>
           <p className="text-sm text-red-600 dark:text-red-400 mb-3">
-            Permanently delete your account and all associated data (projects, tasks, comments, files).
+            Permanently delete your account and all associated data.
           </p>
-          <Button
-            onClick={() => setStep("password")}
-            className="!bg-red-600 hover:!bg-red-700"
-          >
+          <Button onClick={() => setStep("password")} className="!bg-red-600 hover:!bg-red-700">
             Delete My Account
           </Button>
         </div>
@@ -642,7 +615,7 @@ function DangerTab({ user }) {
       {step === "otp" && (
         <form onSubmit={confirmDeletion} className="space-y-4 max-w-md">
           <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-3 text-sm text-red-700 dark:text-red-300">
-            📧 We've sent a 6-digit OTP to <strong>{user.email}</strong>. Enter it below.
+            📧 OTP sent to <strong>{user.email}</strong>. Enter it below.
           </div>
           <input
             type="text"

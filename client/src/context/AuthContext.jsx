@@ -10,14 +10,30 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const token = localStorage.getItem("token");
     const u = localStorage.getItem("user");
-    if (token && u) setUser(JSON.parse(u));
+    if (token && u) {
+      try {
+        setUser(JSON.parse(u));
+      } catch {
+        localStorage.clear();
+      }
+    }
     setLoading(false);
   }, []);
 
+  // Full login (with token) — for sign in / register
   const login = (token, user) => {
-    localStorage.setItem("token", token);
+    if (token) localStorage.setItem("token", token);
     localStorage.setItem("user", JSON.stringify(user));
     setUser(user);
+  };
+
+  // Partial update — for profile changes without re-login
+  const updateUser = (partial) => {
+    setUser((prev) => {
+      const merged = { ...(prev || {}), ...partial };
+      localStorage.setItem("user", JSON.stringify(merged));
+      return merged;
+    });
   };
 
   const logout = () => {
@@ -26,7 +42,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, updateUser, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
