@@ -34,7 +34,6 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-animated relative overflow-hidden">
-      {/* Floating decorative blobs */}
       <div className="absolute top-20 left-20 w-72 h-72 bg-white/20 rounded-full blur-3xl animate-float" />
       <div className="absolute bottom-20 right-20 w-96 h-96 bg-purple-300/30 rounded-full blur-3xl animate-float" style={{ animationDelay: "1s" }} />
       <div className="absolute top-1/2 left-1/3 w-64 h-64 bg-indigo-400/20 rounded-full blur-3xl animate-float" style={{ animationDelay: "2s" }} />

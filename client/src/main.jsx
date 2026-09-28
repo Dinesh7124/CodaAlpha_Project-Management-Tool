@@ -1,5 +1,4 @@
 import React from "react";
-import "./lib/i18n.js";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App.jsx";

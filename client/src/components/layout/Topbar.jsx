@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext.jsx";
 import Avatar from "../ui/Avatar.jsx";
-import LanguageSwitcher from "../ui/LanguageSwitcher.jsx";
 import ThemeToggle from "../ui/ThemeToggle.jsx";
 import ThemePicker from "../ui/ThemePicker.jsx";
 import NotificationPanel from "../notifications/NotificationPanel.jsx";
@@ -42,7 +41,7 @@ export default function Topbar({ children }) {
 
         <div className="flex items-center gap-1 flex-shrink-0">
           <NotificationPanel />
-          <LanguageSwitcher />
+          
           <ThemePicker />
           <ThemeToggle />
           <div className="flex items-center gap-2 pl-3 ml-1 border-l" style={{ borderColor: "var(--border)" }}>
