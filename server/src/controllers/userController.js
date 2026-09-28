@@ -45,8 +45,8 @@ export async function updateProfile(req, res, next) {
   try {
     const { name, bio, theme, avatarColor } = req.body;
     const data = {};
-    if (name !== undefined) data.name = name;
-    if (bio !== undefined) data.bio = bio;
+    if (name !== undefined) data.name = String(name).trim();
+    if (bio !== undefined) data.bio = String(bio).trim() || null;
     if (theme !== undefined) data.theme = theme;
     if (avatarColor !== undefined) data.avatarColor = avatarColor;
 

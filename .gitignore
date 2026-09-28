@@ -31,3 +31,7 @@ client/build/
 # OS
 .DS_Store
 Thumbs.db
+
+.env
+server/.env
+server/.env.backup
