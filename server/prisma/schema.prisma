@@ -17,9 +17,22 @@ model User {
   bio           String?
   theme         String   @default("light")
   createdAt     DateTime @default(now())
-
-
-   // 🔽 YE 2 NAYE FIELDS ADD KARO 🔽
+  
+  // NEW — Email change
+  pendingEmail       String?
+  emailChangeOtp     String?
+  emailChangeExpiry  DateTime?
+  
+  // NEW — Delete account
+  deleteOtp          String?
+  deleteOtpExpiry    DateTime?
+  deletedAt          DateTime?
+  
+  // NEW — Account Activity Log relation
+  sessions      Session[]
+  securityLogs  SecurityLog[]
+  
+  // Existing relations
   resetOtp       String?
   resetOtpExpiry DateTime?
   ownedProjects Project[]      @relation("Owner")
@@ -31,7 +44,6 @@ model User {
   attachments   Attachment[]
   timeLogs      TimeLog[]
   savedViews    SavedView[]
-
 }
 
 model Project {
@@ -179,5 +191,28 @@ model SavedView {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   projectId String
   project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token        String   @unique
+  userAgent    String?
+  ip           String?
+  lastActiveAt DateTime @default(now())
+  createdAt    DateTime @default(now())
+  revoked      Boolean  @default(false)
+}
+
+model SecurityLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event     String   // login | logout | password_changed | email_changed | account_deleted | 2fa_enabled
+  ip        String?
+  userAgent String?
+  meta      String?  // JSON details
   createdAt DateTime @default(now())
 }
