@@ -76,6 +76,9 @@ Built with a **modern tech stack** featuring JWT authentication, Socket.IO real-
 ### 📧 Email Notifications
 - OTP for password reset
 - Task assignment alerts
+- **Task creation notifications (all project members)**
+- **Task update alerts (status changes)**
+- **Task completion alerts**
 - Task completion alerts
 - Password change security alerts
 - Beautiful branded HTML email templates
