@@ -1,1 +1,0 @@
-postgresql://neondb_owner:npg_wg89ybPiRWOF@ep-lingering-night-b3x39oq0-pooler.c-4.ap-southeast-1.aws.neon.tech/taskflow?sslmode=require&channel_binding=require

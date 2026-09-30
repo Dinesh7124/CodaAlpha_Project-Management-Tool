@@ -2,12 +2,23 @@
 node_modules/
 */node_modules/
 
-# Environment variables
+# Environment variables (ALL)
 .env
 .env.local
 .env.production
+.env.backup
 server/.env
+server/.env.backup
+server/.env.*.local
 client/.env
+*.env.backup
+
+# Secrets
+neon-connection.txt
+*connection*.txt
+secrets/
+*.pem
+*.key
 
 # Database
 *.db
@@ -17,21 +28,28 @@ server/prisma/*.db
 
 # User uploads
 server/uploads/
+!server/uploads/.gitkeep
 
 # Build output
 client/dist/
 client/build/
+dist/
+build/
 *.log
 
 # IDE
 .vscode/
 .idea/
+.vs/
 *.swp
+*.swo
 
 # OS
 .DS_Store
 Thumbs.db
 
-.env
-server/.env
-server/.env.backup
+# Temp setup scripts
+setup*.js
+fix-*.js
+check-ai.js
+switch-db.js
